@@ -1,4 +1,4 @@
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -75,25 +75,34 @@ app.use((req, res) => {
 // Connect to MongoDB and start server
 const mongoUri = process.env.DB_URI || process.env.MONGO_URI;
 
-mongoose.connect(mongoUri)
-  .then(async () => {
-    console.log('MongoDB connected successfully');
-    
-    // Clear all products on startup (remove seeded products)
-    const Product = require('./models/Product');
-    await Product.deleteMany({});
-    console.log('Cleared all products from database');
-    
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err.message);
-    console.log('Starting server without database...');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT} (without MongoDB)`);
-    });
+// Validate MongoDB URI
+if (!mongoUri) {
+  console.error('ERROR: MongoDB URI not configured. Please set DB_URI in .env file');
+  console.log('Starting server without database...');
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} (without MongoDB)`);
   });
+} else {
+  mongoose.connect(mongoUri)
+    .then(async () => {
+      console.log('MongoDB connected successfully');
+      
+      // Clear all products on startup (remove seeded products)
+      const Product = require('./models/Product');
+      await Product.deleteMany({});
+      console.log('Cleared all products from database');
+      
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    })
+    .catch(err => {
+      console.error('MongoDB connection error:', err.message);
+      console.log('Starting server without database...');
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT} (without MongoDB)`);
+      });
+    });
+}
 
 module.exports = app;
