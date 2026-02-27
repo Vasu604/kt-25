@@ -273,11 +273,33 @@ const getCategories = async (req, res) => {
   }
 };
 
+/**
+ * Clear all products (admin endpoint)
+ * DELETE /api/products/clear
+ */
+const clearProducts = async (req, res) => {
+  try {
+    await Product.deleteMany({});
+    
+    res.status(200).json({
+      success: true,
+      message: 'All products cleared successfully'
+    });
+  } catch (error) {
+    console.error('Clear products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while clearing products'
+    });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
-  getCategories
+  getCategories,
+  clearProducts
 };

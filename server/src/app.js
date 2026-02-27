@@ -46,6 +46,7 @@ app.get('/api/products/:id', productController.getProductById);
 app.post('/api/products', productController.createProduct);
 app.put('/api/products/:id', productController.updateProduct);
 app.delete('/api/products/:id', productController.deleteProduct);
+app.delete('/api/products/clear', productController.clearProducts);
 
 // Cart Routes (protected)
 app.get('/api/cart', authMiddleware, cartController.getCart);
@@ -77,6 +78,11 @@ const mongoUri = process.env.DB_URI || process.env.MONGO_URI;
 mongoose.connect(mongoUri)
   .then(async () => {
     console.log('MongoDB connected successfully');
+    
+    // Clear all products on startup (remove seeded products)
+    const Product = require('./models/Product');
+    await Product.deleteMany({});
+    console.log('Cleared all products from database');
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
