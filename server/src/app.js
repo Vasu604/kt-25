@@ -1,9 +1,4 @@
-/**
- * Express Application
- * Main server entry point with routes and middleware
- */
-
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -76,35 +71,12 @@ app.use((req, res) => {
   });
 });
 
-// Seed sample products to MongoDB
-const seedProducts = async () => {
-  const Product = require('./models/Product');
-  const count = await Product.countDocuments();
-  
-  if (count === 0) {
-    const sampleProducts = [
-      { name: 'Laptop Pro', description: 'High performance laptop with 16GB RAM', price: 1299.99, category: 'Electronics', stock: 50 },
-      { name: 'Wireless Mouse', description: 'Ergonomic wireless mouse', price: 29.99, category: 'Electronics', stock: 100 },
-      { name: 'Smartphone', description: 'Latest model smartphone with great camera', price: 899.99, category: 'Electronics', stock: 30 },
-      { name: 'Coffee Maker', description: 'Automatic coffee maker with timer', price: 79.99, category: 'Home', stock: 25 },
-      { name: 'Running Shoes', description: 'Comfortable running shoes', price: 119.99, category: 'Sports', stock: 40 },
-      { name: 'Backpack', description: 'Durable backpack for laptop', price: 49.99, category: 'Accessories', stock: 60 },
-      { name: 'Desk Lamp', description: 'LED desk lamp with adjustable brightness', price: 34.99, category: 'Home', stock: 35 },
-      { name: 'Headphones', description: 'Noise cancelling headphones', price: 199.99, category: 'Electronics', stock: 20 },
-    ];
-    
-    await Product.insertMany(sampleProducts);
-    console.log('Sample products seeded to MongoDB');
-  }
-};
-
 // Connect to MongoDB and start server
-const mongoUri = process.env.DB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/kd-kt-25';
+const mongoUri = process.env.DB_URI || process.env.MONGO_URI;
 
 mongoose.connect(mongoUri)
   .then(async () => {
     console.log('MongoDB connected successfully');
-    await seedProducts();
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
